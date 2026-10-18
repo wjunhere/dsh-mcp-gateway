@@ -1,7 +1,7 @@
 {
   "name": "@wjunhere/dsh-mcp-gateway",
   "description": "One mcp proxy tool for DSH: search, describe and call MCP tools on demand instead of putting every server's schemas in the context",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "wjunhere",
   "license": "MIT",
   "homepage": "https://github.com/wjunhere/dsh-mcp-gateway#readme",

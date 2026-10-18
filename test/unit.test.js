@@ -7,7 +7,7 @@ import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 
-import { defaultCacheFile, expandHome, readServerFile, resolveServers } from '../lib/config.js'
+import { defaultCacheFile, defaultConfigFile, expandHome, readServerFile, resolveServers } from '../lib/config.js'
 import { cacheEntryValid, loadCache, saveCache, serverConfigHash } from '../lib/cache.js'
 import { compactShape, describeTool, formatSearchResults, rankTools, suggestNames } from '../lib/search.js'
 
@@ -39,6 +39,19 @@ test('expandHome only expands a leading tilde', () => {
   assert.equal(expandHome('~/x'), join(homedir(), 'x'))
   assert.equal(expandHome('~'), homedir())
   assert.equal(expandHome('C:/x/~y'), 'C:/x/~y')
+})
+
+test('defaultConfigFile reads $DSH_HOME and falls back to ~/.dsh', () => {
+  assert.equal(defaultConfigFile({ DSH_HOME: 'C:/dsh' }), join('C:/dsh', 'mcp.json'))
+  assert.equal(defaultConfigFile({}), join(homedir(), '.dsh', 'mcp.json'))
+  assert.equal(defaultConfigFile({ DSH_HOME: '~/custom' }), join(homedir(), 'custom', 'mcp.json'))
+  assert.equal(defaultConfigFile({ DSH_HOME: '' }), join(homedir(), '.dsh', 'mcp.json'))
+})
+
+test('Config makes configFile optional so the DSH home default applies', async () => {
+  const { Config } = await import('../lib/index.js')
+  assert.equal(Config({}).configFile, undefined)
+  assert.equal(Config({ configFile: 'C:/x/mcp.json' }).configFile, 'C:/x/mcp.json')
 })
 
 test('readServerFile rejects missing, invalid and non-object files', () => {

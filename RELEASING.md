@@ -50,9 +50,9 @@ npm pack --dry-run     # 确认只有 lib/、cordis.patch.yml、README、LICENSE
 
 | 来源 | `plugin_manager install_bundle` 的 target |
 |---|---|
-| npm | `@wjunhere/dsh-mcp-gateway` 或 `@wjunhere/dsh-mcp-gateway@0.1.0` |
+| npm | `@wjunhere/dsh-mcp-gateway` 或 `@wjunhere/dsh-mcp-gateway@0.2.0` |
 | GitHub | `git+https://github.com/wjunhere/dsh-mcp-gateway.git` |
-| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/wjunhere-dsh-mcp-gateway-0.1.0.tgz` |
+| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.2.0/wjunhere-dsh-mcp-gateway-0.2.0.tgz` |
 | 本地目录 | `B:\path\to\dsh-mcp-gateway` |
 
 装完后按 README 禁用原来的 `@deepseek-ai/dsh-mcp-client` 行，再确认 `mcp({ action: "status" })`。

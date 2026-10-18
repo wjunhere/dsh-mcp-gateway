@@ -1,7 +1,7 @@
 /**
  * Real-server smoke test for lib/manager.js.
  *
- * Reads the live Pi config (~/.pi/agent/mcp-adapter.json, read-only) and only
+ * Reads the live DSH config ($DSH_HOME/mcp.json, read-only) and only
  * touches cheap local servers: archivum, papergate, picgo-uploader.
  * Nothing is downloaded, uploaded, or otherwise mutated.
  *
@@ -9,11 +9,10 @@
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
 import { McpManager } from '../lib/manager.js';
+import { defaultConfigFile } from '../lib/config.js';
 
-const CONFIG_PATH = process.env.DSH_MCP_GATEWAY_CONFIG ?? join(homedir(), '.pi', 'agent', 'mcp-adapter.json');
+const CONFIG_PATH = process.env.DSH_MCP_GATEWAY_CONFIG ?? defaultConfigFile();
 const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 const allServers = config.mcpServers;
 assert.ok(allServers && typeof allServers === 'object', 'config has mcpServers');

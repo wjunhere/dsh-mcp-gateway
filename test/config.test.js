@@ -1,12 +1,12 @@
-// Config resolution against the real Pi server file (read-only).
+// Config resolution against the real server file (read-only).
 import assert from 'node:assert/strict'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 
-import { defaultCacheFile, expandHome, readServerFile, resolveServers } from '../lib/config.js'
+import { defaultCacheFile, defaultConfigFile, expandHome, readServerFile, resolveServers } from '../lib/config.js'
 
-const CONFIG_FILE = process.env.DSH_MCP_GATEWAY_CONFIG ?? join(homedir(), '.pi', 'agent', 'mcp-adapter.json')
+const CONFIG_FILE = process.env.DSH_MCP_GATEWAY_CONFIG ?? defaultConfigFile()
 
 test('expandHome expands a leading tilde only', () => {
   assert.equal(expandHome('~/.pi/agent/mcp-adapter.json'), join(homedir(), '.pi', 'agent', 'mcp-adapter.json'))
@@ -15,11 +15,11 @@ test('expandHome expands a leading tilde only', () => {
   assert.equal(expandHome('C:/x/~y'), 'C:/x/~y')
 })
 
-test('resolves the real Pi file and honours disabled', () => {
-  const file = readServerFile('~/.pi/agent/mcp-adapter.json')
+test('resolves the real server file and honours disabled', () => {
+  const file = readServerFile(CONFIG_FILE)
   assert.ok(Object.keys(file.servers).length >= 19)
   const servers = resolveServers(file, { includeServers: [], excludeServers: [], servers: {} })
-  assert.equal(servers.serial, undefined, 'serial is disabled in the Pi file')
+  assert.equal(servers.serial, undefined, 'serial is disabled in the server file')
   assert.equal(servers['picgo-uploader'].command, 'cmd')
   assert.deepEqual(servers['picgo-uploader'].args.slice(0, 2), ['/c', 'node'])
 })

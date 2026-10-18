@@ -9,18 +9,19 @@ DSH 插件：把 MCP 工具面收成一个 `mcp` 代理工具，工具元数据�
 
 ## 代码结构
 
-- `lib/index.js`：cordis 插件入口（`apply`/`Config`），`mcp` 工具定义、各模式分发、图片投影、启动时后台发现。
+- `lib/index.js`：cordis 插件入口（`apply`/`Config`），`mcp` 工具定义、各模式分发、图片投影、启动时后台发现、`reload`。
 - `lib/manager.js`：MCP 连接管理（懒连接、空闲关闭、单次重连、超时）。不依赖 cordis，可单独测。
 - `lib/search.js`：词法排序（权重/覆盖率门限/关键词）、compact shape、describe、分页、拼错建议。
 - `lib/cache.js`：元数据缓存（atomic write、config hash）。
-- `lib/config.js`：读 Pi 的 `mcp-adapter.json`，合并 include/exclude/overrides。
+- `lib/config.js`：读服务器清单（默认 `$DSH_HOME/mcp.json`，`configFile` 可覆盖），合并 include/exclude/overrides。
 
 ## 关键约束
 
-1. `mcp` 工具的描述必须是配置文件（服务器名列表）的纯函数。任何实时状态（连接数、工具数）放进 `mcp({ action: "status" })` 的返回值，否则每次重注册都会击穿 KV 缓存前缀。
+1. `mcp` 工具的描述必须是配置文件（服务器名列表）的纯函数。任何实时状态（连接数、工具数）放进 `mcp({ action: "status" })` 的返回值，否则每次重注册都会击穿 KV 缓存前缀。因此 `reload` 换掉服务器列表后必须重新注册工具（`registerTool()`），不能沿用旧描述。
 2. 缓存条目按 transport 身份（command/args/env/cwd/url/headers）哈希失效；配置改了必须重新发现。
 3. 后台发现完成后调用 `manager.disconnect(name)`，避免启动时把所有服务器进程都留着。
 4. 结果文本就是模型看到的内容，保持简短；完整 schema 只在 `describe` 返回。
+5. `reload` 的顺序是：先 `loadRuntimeState()` 解析新文件（失败即抛，不动运行态）→ `closeAll()` 旧连接 → `adopt()` 换状态 → 重注册工具 → 后台发现。别把顺序改成先关连接。
 
 ## 踩过的坑
 
@@ -28,14 +29,15 @@ DSH 插件：把 MCP 工具面收成一个 `mcp` 代理工具，工具元数据�
 - **profile patch 同 id 会整段替换 bundle config**，不会深合并。写覆盖要把字段写全。
 - DSH 从桌面快捷方式启动时 PATH 可能没有 `%USERPROFILE%\.local\bin`，裸命令名会连不上；用 `servers.<name>.command` 给绝对路径。
 - 连接失败要把服务器 stderr 尾巴带出来，否则 MCP SDK 只给一个 `Connection closed`。`manager.js` 已用 `stderr: 'pipe'` 收集最后 4 KB。
-- 每次加载会把解析后的服务器清单写到 `%TEMP%\dsh-mcp-gateway-resolved.json`（env 只留键名），排查配置解析用。
+- 每次加载 / reload 会把解析后的服务器清单写到 `%TEMP%\dsh-mcp-gateway-resolved.json`（env 只留键名），排查配置解析用。
+- **改清单文件不会触发 DSH HMR**（HMR 只监视 profile manifest 和 patch 文件）。改完用 `mcp({ action: "reload" })`；只有改插件配置（`cordis.patch.yml`）才由 HMR 重算。
 
 ## 测试
 
 - `npm run test:unit`：纯函数/配置合并/缓存/搜索格式，不依赖外部服务器，CI 跑这个。
-- `npm test`：配置解析（真实 Pi 文件 + schemastery 归一化）、搜索/缓存（真实工具清单）。
+- `npm test`：配置解析（真实清单文件 + schemastery 归一化）、搜索/缓存（真实工具清单）。
 - `npm run test:smoke`：管理器对真实服务器的 list/call/idle 测试。
-- `npm run test:integration`：真实 cordis + 真实 dsh-tools 注册表 + 真实 MCP 服务器，验证工具面只有一个 `mcp`、status/connect/search/describe/call/错误路径。
+- `npm run test:integration`：真实 cordis + 真实 dsh-tools 注册表 + 真实 MCP 服务器，验证工具面只有一个 `mcp`、status/connect/search/describe/call/错误路径，以及 `reload` 换清单、坏文件回退。
 
 改连接层后先跑 smoke；改排序/格式后跑 test；改插件接线后跑 integration。改配置解析后务必通过 `Config(...)` 归一化再断言，直接传裸对象会绕过 schema 掩盖上面第一个坑。
 

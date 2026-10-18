@@ -2,6 +2,18 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.2.0] - 2026-10-18
+
+### 新增
+
+- `mcp({ action: "reload" })`：改完服务器清单原地重载 —— 重新读文件、重建服务器列表、重注册 `mcp` 工具、后台发现新服务器。清单写坏时直接报错，旧列表继续工作，不需要重启 DSH。
+- 服务器清单默认路径改为 `$DSH_HOME/mcp.json`；`configFile` 变成可选，仍支持 `~`，也可以指向 Pi / Claude / Cursor 的配置。
+
+### 变更
+
+- bundle 的 `cordis.patch.yml` 不再写死 Pi 的 `mcp-adapter.json` 路径。
+- 测试和文档同步：默认读 `$DSH_HOME/mcp.json`；集成测试覆盖 reload 换清单和坏文件回退。
+
 ## [0.1.0] - 2026-10-18
 
 ### 新增

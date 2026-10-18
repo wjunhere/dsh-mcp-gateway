@@ -6,8 +6,9 @@
     - id: mcp-gateway
       name: '@wjunhere/dsh-mcp-gateway'
       config:
-        # Shared server list (same file Pi uses); a leading ~ is the user home.
-        configFile: '~/.pi/agent/mcp-adapter.json'
+        # Server list defaults to $DSH_HOME/mcp.json; a leading ~ is the user
+        # home. Point configFile elsewhere to reuse another agent's config.
+        # configFile: '~/.dsh/mcp.json'
         # Discover servers that have no cached tool list yet, in the background.
         discoverOnStart: background
         discoverConcurrency: 2

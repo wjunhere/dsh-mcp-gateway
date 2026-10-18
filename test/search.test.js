@@ -9,11 +9,12 @@ import { Client } from '@modelcontextprotocol/client'
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio'
 
 import { cacheEntryValid, loadCache, saveCache, serverConfigHash } from '../lib/cache.js'
+import { defaultConfigFile } from '../lib/config.js'
 import { compactShape, describeTool, formatSearchResults, rankTools, suggestNames } from '../lib/search.js'
 
 // Real config and real servers only: every schema/tool below comes from
 // listTools() on the local archivum and picgo-uploader processes.
-const CONFIG_PATH = join(homedir(), '.pi', 'agent', 'mcp-adapter.json')
+const CONFIG_PATH = process.env.DSH_MCP_GATEWAY_CONFIG ?? defaultConfigFile()
 const SERVER_NAMES = ['archivum', 'picgo-uploader']
 const TMP_DIR = fileURLToPath(new URL('../tmp/', import.meta.url))
 

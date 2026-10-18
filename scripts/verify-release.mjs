@@ -53,7 +53,6 @@ if (existsSync(patchPath)) {
       const own = rows.find((row) => row?.name === pkg.name)
       if (own === undefined) fail(`cordis.patch.yml must insert a row named "${pkg.name}"`)
       else if (typeof own.id !== 'string' || own.id.length === 0) fail('cordis.patch.yml: inserted row needs an id')
-      else if (own.config?.configFile === undefined) fail('cordis.patch.yml: inserted row needs config.configFile')
     }
   }
 }
