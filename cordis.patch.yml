@@ -4,7 +4,7 @@
 # through this gateway).
 - insert:
     - id: mcp-gateway
-      name: 'dsh-mcp-gateway'
+      name: '@wjunhere/dsh-mcp-gateway'
       config:
         # Shared server list (same file Pi uses); a leading ~ is the user home.
         configFile: '~/.pi/agent/mcp-adapter.json'

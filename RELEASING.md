@@ -20,7 +20,7 @@ git push --follow-tags
 
 1. `scripts/verify-release.mjs <tag>`：manifest、bundle patch、模块语法、tag 与版本一致；
 2. `npm run test:unit`（不依赖外部 MCP 服务器）；
-3. `npm pack` 生成 `dsh-mcp-gateway-<version>.tgz`；
+3. `npm pack` 生成 `wjunhere-dsh-mcp-gateway-<version>.tgz`；
 4. 若仓库配置了 `NPM_TOKEN` secret，`npm publish --access public --provenance`；
 5. 创建 GitHub Release 并附上 tarball。
 
@@ -50,9 +50,9 @@ npm pack --dry-run     # 确认只有 lib/、cordis.patch.yml、README、LICENSE
 
 | 来源 | `plugin_manager install_bundle` 的 target |
 |---|---|
-| npm | `dsh-mcp-gateway` 或 `dsh-mcp-gateway@0.1.0` |
+| npm | `@wjunhere/dsh-mcp-gateway` 或 `@wjunhere/dsh-mcp-gateway@0.1.0` |
 | GitHub | `git+https://github.com/wjunhere/dsh-mcp-gateway.git` |
-| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/dsh-mcp-gateway-0.1.0.tgz` |
+| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/wjunhere-dsh-mcp-gateway-0.1.0.tgz` |
 | 本地目录 | `B:\path\to\dsh-mcp-gateway` |
 
 装完后按 README 禁用原来的 `@deepseek-ai/dsh-mcp-client` 行，再确认 `mcp({ action: "status" })`。

@@ -27,9 +27,9 @@ MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个
 
 | 来源 | `plugin_manager install_bundle` 的 target |
 |---|---|
-| npm（发布后） | `dsh-mcp-gateway`，可写死版本如 `dsh-mcp-gateway@0.1.0` |
+| npm（发布后） | `@wjunhere/dsh-mcp-gateway`，可写死版本如 `@wjunhere/dsh-mcp-gateway@0.1.0` |
 | GitHub | `git+https://github.com/wjunhere/dsh-mcp-gateway.git` |
-| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/dsh-mcp-gateway-0.1.0.tgz` |
+| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/wjunhere-dsh-mcp-gateway-0.1.0.tgz` |
 | 本地开发 | 克隆后的绝对目录，如 `B:\path\to\dsh-mcp-gateway` |
 
 本地目录方式需要先装依赖：
@@ -43,8 +43,8 @@ npm install
 也可以手动在 `%USERPROFILE%\.dsh\profiles\desktop\package.json` 里加：
 
 ```json
-"dependencies": { "dsh-mcp-gateway": "file:<本仓库目录>" },
-"dsh": { "profile": { "bundles": [ "...", "dsh-mcp-gateway" ] } }
+"dependencies": { "@wjunhere/dsh-mcp-gateway": "file:<本仓库目录>" },
+"dsh": { "profile": { "bundles": [ "...", "@wjunhere/dsh-mcp-gateway" ] } }
 ```
 
 然后在 profile 目录执行 `pnpm install`。
@@ -71,7 +71,7 @@ npm install
 
 ```yaml
 - id: mcp-gateway
-  name: 'dsh-mcp-gateway'
+  name: '@wjunhere/dsh-mcp-gateway'
   config:
     configFile: '~/.pi/agent/mcp-adapter.json'
     discoverOnStart: background
