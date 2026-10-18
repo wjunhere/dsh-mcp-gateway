@@ -85,7 +85,7 @@ npm install
 
 | 字段 | 默认 | 说明 |
 |---|---|---|
-| `configFile` | 必填 | 服务器清单，和 Pi 共用同一个 JSON |
+| `configFile` | 必填 | 服务器清单（`mcpServers` 对象），默认指向 Pi 的 `~/.pi/agent/mcp-adapter.json`；不用 Pi 就改成你的 `.mcp.json` 或 Claude/Cursor 配置路径，`~` 会展开到用户目录 |
 | `cacheFile` | 清单同目录下 `.dsh-mcp-gateway-cache.json` | 工具元数据缓存 |
 | `discoverOnStart` | `background` | 启动时后台发现；`off` 则只按需发现 |
 | `discoverConcurrency` | `2` | 同时发现几个服务器 |
