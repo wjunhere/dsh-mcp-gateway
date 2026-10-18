@@ -1,5 +1,7 @@
 # dsh-mcp-gateway
 
+[![GitHub](https://img.shields.io/badge/GitHub-wjunhere%2Fdsh--mcp--gateway-181717?logo=github)](https://github.com/wjunhere/dsh-mcp-gateway)
+
 给 DSH 一个 `mcp` 代理工具：MCP 工具不再全部塞进上下文，模型按需搜索、查看、调用。
 
 ## 为什么
@@ -18,18 +20,24 @@ MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个
 
 ## 安装
 
-前提：DSH 0.2.1-rc.2，Node 依赖已装（`npm install`）。
+前提：DSH 0.2.1-rc.2，Node 依赖已装。
+
+```sh
+git clone https://github.com/wjunhere/dsh-mcp-gateway.git
+cd dsh-mcp-gateway
+npm install
+```
 
 1. 用插件管理器安装这个目录：
 
    ```
-   plugin_manager install_bundle  target = <本仓库目录>
+   plugin_manager install_bundle  target = <克隆下来的本仓库目录>
    ```
 
    或者手动在 `%USERPROFILE%\.dsh\profiles\desktop\package.json` 里加：
 
    ```json
-   "dependencies": { "dsh-mcp-gateway": "file:<本仓库目录>" },
+   "dependencies": { "dsh-mcp-gateway": "file:<克隆下来的本仓库目录>" },
    "dsh": { "profile": { "bundles": [ "...", "dsh-mcp-gateway" ] } }
    ```
 
@@ -133,3 +141,5 @@ npm test                  # 配置解析、搜索/缓存（真实配置文件和
 npm run test:smoke        # 连接管理（真实服务器 list/call/空闲关闭）
 npm run test:integration  # 真实 cordis + 真实 dsh-tools 注册表 + 真实 MCP 服务器
 ```
+
+测试**有意不使用 mock**：默认读取 `~/.pi/agent/mcp-adapter.json` 并连接 `archivum`、`papergate`、`picgo-uploader`。没有这些本地服务器时测试会失败，这是预期行为；换配置文件用 `DSH_MCP_GATEWAY_CONFIG=/path/to/mcp.json`。
