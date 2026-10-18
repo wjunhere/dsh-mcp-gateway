@@ -1,0 +1,18 @@
+# dsh-mcp-gateway — bundle patch.
+# One row replaces every `@deepseek-ai/dsh-mcp-client` row: those rows must be
+# disabled or removed, otherwise each server loads twice (once natively, once
+# through this gateway).
+- insert:
+    - id: mcp-gateway
+      name: 'dsh-mcp-gateway'
+      config:
+        # Shared server list (same file Pi uses); a leading ~ is the user home.
+        configFile: '~/.pi/agent/mcp-adapter.json'
+        # Discover servers that have no cached tool list yet, in the background.
+        discoverOnStart: background
+        discoverConcurrency: 2
+        # Close an idle server after 10 minutes.
+        idleTimeoutMs: 600000
+        # Default per-call deadline; a server can raise it with requestTimeoutMs.
+        toolCallTimeoutMs: 60000
+        maxSearchResults: 12
