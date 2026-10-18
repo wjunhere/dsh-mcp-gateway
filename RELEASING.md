@@ -11,8 +11,8 @@ npm version patch --no-git-tag-version   # 或 minor / major
 # 2. 更新 CHANGELOG.md，提交
 git commit -am "release: v$(node -p "require('./package.json').version")"
 
-# 3. 打 tag 并推送，GitHub Actions 会完成剩下的
-git tag "v$(node -p "require('./package.json').version")"
+# 3. 打 tag 并推送（用附注 tag，`--follow-tags` 只推附注 tag）
+git tag -a "v$(node -p "require('./package.json').version")" -m "release v$(node -p "require('./package.json').version")"
 git push --follow-tags
 ```
 
