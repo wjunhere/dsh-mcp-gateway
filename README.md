@@ -1,6 +1,7 @@
 # dsh-mcp-gateway
 
 [![GitHub](https://img.shields.io/badge/GitHub-wjunhere%2Fdsh--mcp--gateway-181717?logo=github)](https://github.com/wjunhere/dsh-mcp-gateway)
+[![CI](https://github.com/wjunhere/dsh-mcp-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/wjunhere/dsh-mcp-gateway/actions/workflows/ci.yml)
 
 给 DSH 一个 `mcp` 代理工具：MCP 工具不再全部塞进上下文，模型按需搜索、查看、调用。
 
@@ -20,7 +21,18 @@ MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个
 
 ## 安装
 
-前提：DSH 0.2.1-rc.2，Node 依赖已装。
+前提：DSH 0.2.1-rc.2。
+
+用插件管理器安装，按你想要的来源选一个 `target`：
+
+| 来源 | `plugin_manager install_bundle` 的 target |
+|---|---|
+| npm（发布后） | `dsh-mcp-gateway`，可写死版本如 `dsh-mcp-gateway@0.1.0` |
+| GitHub | `git+https://github.com/wjunhere/dsh-mcp-gateway.git` |
+| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/dsh-mcp-gateway-0.1.0.tgz` |
+| 本地开发 | 克隆后的绝对目录，如 `B:\path\to\dsh-mcp-gateway` |
+
+本地目录方式需要先装依赖：
 
 ```sh
 git clone https://github.com/wjunhere/dsh-mcp-gateway.git
@@ -28,22 +40,18 @@ cd dsh-mcp-gateway
 npm install
 ```
 
-1. 用插件管理器安装这个目录：
+也可以手动在 `%USERPROFILE%\.dsh\profiles\desktop\package.json` 里加：
 
-   ```
-   plugin_manager install_bundle  target = <克隆下来的本仓库目录>
-   ```
+```json
+"dependencies": { "dsh-mcp-gateway": "file:<本仓库目录>" },
+"dsh": { "profile": { "bundles": [ "...", "dsh-mcp-gateway" ] } }
+```
 
-   或者手动在 `%USERPROFILE%\.dsh\profiles\desktop\package.json` 里加：
+然后在 profile 目录执行 `pnpm install`。
 
-   ```json
-   "dependencies": { "dsh-mcp-gateway": "file:<克隆下来的本仓库目录>" },
-   "dsh": { "profile": { "bundles": [ "...", "dsh-mcp-gateway" ] } }
-   ```
+### 装完后的两步
 
-   然后在 profile 目录执行 `pnpm install`。
-
-2. **禁用原来的 MCP 行**。否则每个服务器会同时以原生工具和网关两种方式加载。编辑
+1. **禁用原来的 MCP 行**。否则每个服务器会同时以原生工具和网关两种方式加载。编辑
    `%USERPROFILE%\.dsh\profiles\desktop\cordis.patch.yml`，给所有
    `name: '@deepseek-ai/dsh-mcp-client'` 的行加 `disabled: true`：
 
@@ -54,7 +62,7 @@ npm install
      config: { ... }
    ```
 
-3. 重启 DSH。首次启动会在后台发现没缓存的服务器（并发 2，每个 60 秒超时），期间
+2. 重启 DSH（或让 HMR 重算）。首次启动会在后台发现没缓存的服务器（并发 2，每个 60 秒超时），期间
    `mcp({ action: "status" })` 能看到进度。
 
 ## 配置

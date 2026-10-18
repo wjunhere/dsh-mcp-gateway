@@ -32,11 +32,21 @@ DSH 插件：把 MCP 工具面收成一个 `mcp` 代理工具，工具元数据�
 
 ## 测试
 
+- `npm run test:unit`：纯函数/配置合并/缓存/搜索格式，不依赖外部服务器，CI 跑这个。
 - `npm test`：配置解析（真实 Pi 文件 + schemastery 归一化）、搜索/缓存（真实工具清单）。
 - `npm run test:smoke`：管理器对真实服务器的 list/call/idle 测试。
 - `npm run test:integration`：真实 cordis + 真实 dsh-tools 注册表 + 真实 MCP 服务器，验证工具面只有一个 `mcp`、status/connect/search/describe/call/错误路径。
 
 改连接层后先跑 smoke；改排序/格式后跑 test；改插件接线后跑 integration。改配置解析后务必通过 `Config(...)` 归一化再断言，直接传裸对象会绕过 schema 掩盖上面第一个坑。
+
+## 发行
+
+`RELEASING.md` 是完整流程。要点：
+
+- `npm run verify:release` 校验 manifest、`dsh.bundle.patch`、插入行、模块语法；`prepack` 自动跑。
+- CI（`.github/workflows/ci.yml`）跑 `npm ci` → verify → unit → `npm pack --dry-run`。
+- 推 `v*` tag 触发 `.github/workflows/release.yml`：校验 tag 与版本一致、unit、pack、有 `NPM_TOKEN` 时 `npm publish`、创建 GitHub Release 附 tarball。
+- 不要改 `files`：tarball 只应包含 `lib/`、`cordis.patch.yml`、README、LICENSE。
 
 ## 没做的部分
 

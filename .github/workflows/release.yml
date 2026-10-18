@@ -1,0 +1,45 @@
+name: Release
+
+# Push a tag that matches the package version:
+#   npm version patch|minor|major --no-git-tag-version
+#   git commit -am "release: vX.Y.Z" && git tag vX.Y.Z && git push --follow-tags
+#
+# The workflow verifies the manifest and tag, runs the unit tests, packs the
+# tarball, publishes to npm when the NPM_TOKEN secret exists, and creates a
+# GitHub Release with the tarball attached.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - name: Verify tag matches package.json
+        run: node scripts/verify-release.mjs "${GITHUB_REF_NAME}"
+      - name: Unit tests (no external servers)
+        run: npm run test:unit
+      - name: Pack tarball
+        run: npm pack
+      - name: Publish to npm
+        if: env.NPM_TOKEN != ''
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create GitHub Release
+        run: gh release create "$GITHUB_REF_NAME" ./dsh-mcp-gateway-*.tgz --generate-notes --title "$GITHUB_REF_NAME"
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -2,15 +2,33 @@
   "name": "dsh-mcp-gateway",
   "description": "One mcp proxy tool for DSH: search, describe and call MCP tools on demand instead of putting every server's schemas in the context",
   "version": "0.1.0",
+  "author": "wjunhere",
+  "license": "MIT",
+  "homepage": "https://github.com/wjunhere/dsh-mcp-gateway#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wjunhere/dsh-mcp-gateway.git"
   },
+  "bugs": {
+    "url": "https://github.com/wjunhere/dsh-mcp-gateway/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "mcp",
+    "mcp-client",
+    "tool",
+    "context-window"
+  ],
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dsh": {
     "bundle": {
@@ -25,11 +43,14 @@
   ],
   "scripts": {
     "test": "node --test test/config.test.js test/search.test.js",
+    "test:unit": "node --test test/unit.test.js",
     "test:smoke": "node test/manager.smoke.mjs",
-    "test:integration": "node test/integration.mjs"
+    "test:integration": "node test/integration.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "prepack": "node scripts/verify-release.mjs"
   },
-  "license": "MIT",
   "engines": {
+    "node": ">=20.0.0",
     "dsh": ">=0.2.1-rc.2 <0.3.0"
   },
   "dependencies": {
@@ -40,6 +61,7 @@
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.5",
     "@deepseek-ai/dsh-system-prompt": "^0.2.1-rc.2",
-    "@deepseek-ai/dsh-tools": "0.2.1-rc.2"
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.2",
+    "yaml": "^2.9.1"
   }
 }
