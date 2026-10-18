@@ -1,6 +1,7 @@
 # dsh-mcp-gateway
 
 [![GitHub](https://img.shields.io/badge/GitHub-wjunhere%2Fdsh--mcp--gateway-181717?logo=github)](https://github.com/wjunhere/dsh-mcp-gateway)
+[![npm](https://img.shields.io/npm/v/@wjunhere/dsh-mcp-gateway)](https://www.npmjs.com/package/@wjunhere/dsh-mcp-gateway)
 [![CI](https://github.com/wjunhere/dsh-mcp-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/wjunhere/dsh-mcp-gateway/actions/workflows/ci.yml)
 
 给 DSH 一个 `mcp` 代理工具：MCP 工具不再全部塞进上下文，模型按需搜索、查看、调用。
@@ -27,7 +28,7 @@ MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个
 
 | 来源 | `plugin_manager install_bundle` 的 target |
 |---|---|
-| npm（发布后） | `@wjunhere/dsh-mcp-gateway`，可写死版本如 `@wjunhere/dsh-mcp-gateway@0.1.0` |
+| npm | `@wjunhere/dsh-mcp-gateway`（当前 0.1.0，可写死版本如 `@wjunhere/dsh-mcp-gateway@0.1.0`） |
 | GitHub | `git+https://github.com/wjunhere/dsh-mcp-gateway.git` |
 | Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.1.0/wjunhere-dsh-mcp-gateway-0.1.0.tgz` |
 | 本地开发 | 克隆后的绝对目录，如 `B:\path\to\dsh-mcp-gateway` |
