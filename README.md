@@ -4,17 +4,17 @@
 
 ## 为什么
 
-MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个启用服务器的 Pi 配置（`%USERPROFILE%\.pi\agent\mcp-adapter.json`）实测 **488 个工具、schema 总量约 4.1 MB**。DSH 默认把每个工具都注册成原生工具，每次请求都带上它们，1M 窗口直接被塞满。
+MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个启用服务器的 Pi 配置（`%USERPROFILE%\.pi\agent\mcp-adapter.json`）实测 **542 个工具、schema 总量约 4.1 MB**。DSH 默认把每个工具都注册成原生工具，每次请求都带上它们，1M 窗口直接被塞满。
 
 这个插件只向模型注册 **1 个** `mcp` 工具，工具清单放在磁盘缓存里，按需检索、按需连接。
 
 | | DSH 默认（逐个注册） | 本插件 |
 |---|---|---|
-| 模型每次请求看到的 MCP 定义 | 488 个工具，约 4.1 MB（≈100 万 token） | 1 个工具，2.6 KB（≈660 token） |
+| 模型每次请求看到的 MCP 定义 | 542 个工具，约 4.1 MB（≈103 万 token） | 1 个工具，2.6 KB（≈660 token） |
 | 服务器进程 | 启动时全部连上，常驻 | 用到才连，空闲 10 分钟关闭 |
 | 服务器连不上 | 启动变慢，工具直接消失 | 记入缓存状态，不影响其它服务器 |
 
-搜索延迟实测：488 个工具上 27–80 ms。
+搜索延迟实测：542 个工具上 27–80 ms。
 
 ## 安装
 
@@ -65,6 +65,14 @@ MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个
     maxSearchResults: 12
     # includeServers: [picgo-uploader, matlab, mineru-mcp, archivum]
     # excludeServers: [rea-wsl]
+    # Per-server overrides, e.g. absolute commands for servers whose bare
+    # command name is not on the DSH host PATH:
+    # servers:
+    #   zotero:
+    #     command: 'C:/Users/you/.local/bin/zotero-mcp.exe'
+    #   jupyter:
+    #     command: 'C:/Users/you/.local/bin/uvx.exe'
+    #     args: ['--from', 'mcp-jupyter', 'mcp-jupyter']
 ```
 
 | 字段 | 默认 | 说明 |
@@ -78,7 +86,9 @@ MCP 服务器一多，工具定义会吃掉整个上下文窗口。一份 19 个
 | `toolCallTimeoutMs` | `60000` | 单次调用默认超时；服务器可用 `requestTimeoutMs` 覆盖 |
 | `maxSearchResults` | `12` | 搜索默认返回条数 |
 | `includeServers` / `excludeServers` | 空 | 只加载/排除指定服务器 |
-| `servers` | 空 | 按服务器覆盖 `disabled`、`description`、`requestTimeoutMs` |
+| `servers` | 空 | 按服务器覆盖 `disabled`、`command`、`args`、`env`、`cwd`、`url`、`headers`、`description`、`requestTimeoutMs`；只写想改的字段 |
+
+注意：**profile 里同 id 的 patch 会整段替换** bundle 自带的 config，所以写覆盖时把上面这些字段一起写全。
 
 Pi 配置里的 `searchKeywords`、`description`、`disabled`、`requestTimeoutMs`、`lifecycle` 都会被读取；`directTools` 忽略。
 
@@ -102,7 +112,7 @@ mcp({ action: "instructions", server: "x" })  → 服务器的使用说明
 - **不接管 MCP resources**：DSH 的 `list_mcp_resources` 等 3 个工具由 `dsh-mcp-client` 提供，禁用那些行之后它们会消失。
 - **审批看不到内层工具**：所有调用在审批/历史里都显示为 `mcp`，参数里有工具名和 server。`danger-full-access` 下没影响。
 - **图片结果**走 DSH 的 attachments（仅当前模型声明支持图片时），还没在 GUI 里实测。
-- **命令要在 DSH 的 PATH 里**：`uvx`、`zotero-mcp`、`chrono` 这三个本次发现失败，就是 DSH 进程 PATH 里找不到。改成绝对路径或补 PATH。
+- **命令要在 DSH 的 PATH 里**：DSH 从桌面快捷方式启动，PATH 可能没有 `%USERPROFILE%\.local\bin`。裸命令名（`uvx`、`zotero-mcp`、`chrono`）会连不上；用 `servers.<name>.command` 改成绝对路径。连接失败时的错误里会带上服务器自己的 stderr。
 - **超大 schema**：`describe` 超过 20 KB 会截断并把全文写到临时文件；工具结果超过 50 KB / 2000 行同理。
 - 没做：MCP prompts、elicitation、OAuth、语义搜索、`directTools` 式激活。
 
@@ -110,7 +120,8 @@ mcp({ action: "instructions", server: "x" })  → 服务器的使用说明
 
 - `mcp({ action: "status" })`：看每个服务器的状态、工具数、失败原因。
 - 缓存文件：`%USERPROFILE%\.pi\agent\.dsh-mcp-gateway-cache.json`。删掉它会在下次启动时全量重新发现。
-- 服务器命令跑不起来时，日志里是 `mcp server "<name>": connect failed: ...`。
+- 服务器命令跑不起来时，错误是 `mcp server "<name>": connect failed: ...`，后面会附上该服务器 stderr 的末尾。
+- 插件每次加载会把解析后的服务器清单（env 只保留键名）写到 `%TEMP%\dsh-mcp-gateway-resolved.json`，对不上配置时看这个文件。
 - 发现太慢：先在 Pi 里确认服务器可用，或临时把 `includeServers` 缩到常用的几个。
 
 ## 开发
@@ -118,7 +129,7 @@ mcp({ action: "instructions", server: "x" })  → 服务器的使用说明
 见 [AGENTS.md](AGENTS.md)。测试：
 
 ```sh
-npm test                  # 搜索/缓存（真实 archivum、picgo 工具清单）
+npm test                  # 配置解析、搜索/缓存（真实配置文件和真实工具清单）
 npm run test:smoke        # 连接管理（真实服务器 list/call/空闲关闭）
 npm run test:integration  # 真实 cordis + 真实 dsh-tools 注册表 + 真实 MCP 服务器
 ```

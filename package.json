@@ -20,7 +20,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --test test/search.test.js",
+    "test": "node --test test/config.test.js test/search.test.js",
     "test:smoke": "node test/manager.smoke.mjs",
     "test:integration": "node test/integration.mjs"
   },

@@ -22,13 +22,21 @@ DSH 插件：把 MCP 工具面收成一个 `mcp` 代理工具，工具元数据�
 3. 后台发现完成后调用 `manager.disconnect(name)`，避免启动时把所有服务器进程都留着。
 4. 结果文本就是模型看到的内容，保持简短；完整 schema 只在 `describe` 返回。
 
+## 踩过的坑
+
+- **schemastery 会给缺省的数组/字典补 `[]`/`{}`**。`servers` 覆盖里的 `args`/`env`/`headers` 必须用 `z.any().required(false)`，否则只写 `command` 的覆盖会把共享配置文件里的 `args`/`env` 覆盖成空，服务器启动后行为异常（chrono 报缺子命令、uvx 打印帮助后退出）。校验放在 `lib/config.js`。
+- **profile patch 同 id 会整段替换 bundle config**，不会深合并。写覆盖要把字段写全。
+- DSH 从桌面快捷方式启动时 PATH 可能没有 `%USERPROFILE%\.local\bin`，裸命令名会连不上；用 `servers.<name>.command` 给绝对路径。
+- 连接失败要把服务器 stderr 尾巴带出来，否则 MCP SDK 只给一个 `Connection closed`。`manager.js` 已用 `stderr: 'pipe'` 收集最后 4 KB。
+- 每次加载会把解析后的服务器清单写到 `%TEMP%\dsh-mcp-gateway-resolved.json`（env 只留键名），排查配置解析用。
+
 ## 测试
 
-- `npm test`：搜索/缓存的真实数据测试（连真实 archivum、picgo-uploader）。
+- `npm test`：配置解析（真实 Pi 文件 + schemastery 归一化）、搜索/缓存（真实工具清单）。
 - `npm run test:smoke`：管理器对真实服务器的 list/call/idle 测试。
 - `npm run test:integration`：真实 cordis + 真实 dsh-tools 注册表 + 真实 MCP 服务器，验证工具面只有一个 `mcp`、status/connect/search/describe/call/错误路径。
 
-改连接层后先跑 smoke；改排序/格式后跑 test；改插件接线后跑 integration。
+改连接层后先跑 smoke；改排序/格式后跑 test；改插件接线后跑 integration。改配置解析后务必通过 `Config(...)` 归一化再断言，直接传裸对象会绕过 schema 掩盖上面第一个坑。
 
 ## 没做的部分
 
