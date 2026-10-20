@@ -2,6 +2,13 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.2.1] - 2026-10-20
+
+### 新增
+
+- 插件页图标：包根 `icon.svg` + `package.json` 的 `icon` 声明，DSH 会把它显示在「已安装插件」列表里（36×36）。图标必须随 tarball 发出，所以 `files` 里加了 `icon.svg`。
+- `verify:release` 增加图标校验：相对路径、留在包内、SVG/PNG/JPEG/WebP、≤256 KiB、确实被 `files` 收录。声明了图标却缺文件时 DSH 不会退回默认图，而是让插件页那一行报元数据错误，这条门禁就是防这个。
+
 ## [0.2.0] - 2026-10-18
 
 ### 新增

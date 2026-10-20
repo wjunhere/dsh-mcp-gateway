@@ -2,8 +2,8 @@
 // shipped modules and (when given a tag) proves the tag matches the version.
 // Runs in `npm pack` via prepack and in the release workflow.
 import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { dirname, extname, isAbsolute, join, relative, resolve, sep, win32 } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parse } from 'yaml'
@@ -21,6 +21,13 @@ const requiredFiles = [
   'LICENSE',
 ]
 
+// Mirrors the icon rules of the DSH plugin inventory reader: a declared icon is
+// a relative path inside the package, SVG/PNG/JPEG/WebP, at most 256 KiB, and it
+// must actually ship — a declared-but-absent icon makes the Plugins row report a
+// metadata error instead of falling back to the default artwork.
+const ICON_EXTENSIONS = new Set(['.svg', '.png', '.jpg', '.jpeg', '.webp'])
+const MAX_ICON_BYTES = 256 * 1024
+
 const fail = (message) => problems.push(message)
 const readJson = (path) => JSON.parse(readFileSync(join(root, path), 'utf8'))
 
@@ -33,6 +40,30 @@ if (pkg.dsh?.bundle?.patch !== './cordis.patch.yml') fail('package.json: dsh.bun
 if (typeof pkg.engines?.dsh !== 'string') fail('package.json: engines.dsh is required for the DSH compatibility check')
 if (pkg.license !== 'MIT') fail('package.json: license must be MIT')
 if (!Array.isArray(pkg.files) || !pkg.files.includes('lib') || !pkg.files.includes('cordis.patch.yml')) fail('package.json: "files" must ship lib and cordis.patch.yml')
+
+if (pkg.icon !== undefined) {
+  if (typeof pkg.icon !== 'string' || pkg.icon.length === 0) fail('package.json: icon must be a non-empty string')
+  else if (isAbsolute(pkg.icon) || win32.isAbsolute(pkg.icon) || /^[A-Za-z][A-Za-z\d+.-]*:/u.test(pkg.icon)) fail('package.json: icon must be a relative file path')
+  else {
+    const target = resolve(root, pkg.icon)
+    const local = relative(root, target).split(sep).join('/')
+    if (local === '..' || local.startsWith('../') || isAbsolute(local)) fail('package.json: icon must stay inside the package')
+    if (!ICON_EXTENSIONS.has(extname(target).toLowerCase())) fail('package.json: icon must be SVG, PNG, JPEG, or WebP')
+    if (!existsSync(target)) fail(`package.json: icon "${pkg.icon}" does not exist`)
+    else if (!statSync(target).isFile()) fail(`package.json: icon "${pkg.icon}" must be a regular file`)
+    else if (statSync(target).size > MAX_ICON_BYTES) fail(`package.json: icon "${pkg.icon}" exceeds 256 KiB`)
+    else if (extname(target).toLowerCase() === '.svg') {
+      const svg = readFileSync(target, 'utf8')
+      if (!/<svg[\s>]/u.test(svg)) fail(`package.json: icon "${pkg.icon}" is not an SVG document`)
+      if (/<script[\s>]/u.test(svg)) fail(`package.json: icon "${pkg.icon}" must not carry scripts`)
+    }
+    const shipped = (pkg.files ?? []).some((entry) => {
+      const normalized = String(entry).replace(/^\.\//u, '').replace(/\/$/u, '')
+      return normalized === local || local.startsWith(`${normalized}/`)
+    })
+    if (!shipped) fail(`package.json: "files" must ship the icon (${local})`)
+  }
+}
 
 for (const file of requiredFiles) {
   if (!existsSync(join(root, file))) fail(`missing required file: ${file}`)

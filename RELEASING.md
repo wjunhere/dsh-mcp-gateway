@@ -41,7 +41,7 @@ npm publish --access public
 ```sh
 npm run verify:release
 npm run test:unit
-npm pack --dry-run     # 确认只有 lib/、cordis.patch.yml、README、LICENSE
+npm pack --dry-run     # 确认只有 lib/、cordis.patch.yml、icon.svg、README、LICENSE
 ```
 
 真实服务器的测试（`npm test`、`npm run test:smoke`、`npm run test:integration`）依赖本机 MCP 服务器，不进 CI；改连接层或搜索逻辑时本地跑。
@@ -50,9 +50,9 @@ npm pack --dry-run     # 确认只有 lib/、cordis.patch.yml、README、LICENSE
 
 | 来源 | `plugin_manager install_bundle` 的 target |
 |---|---|
-| npm | `@wjunhere/dsh-mcp-gateway` 或 `@wjunhere/dsh-mcp-gateway@0.2.0` |
+| npm | `@wjunhere/dsh-mcp-gateway` 或 `@wjunhere/dsh-mcp-gateway@0.2.1` |
 | GitHub | `git+https://github.com/wjunhere/dsh-mcp-gateway.git` |
-| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.2.0/wjunhere-dsh-mcp-gateway-0.2.0.tgz` |
+| Release tarball | `https://github.com/wjunhere/dsh-mcp-gateway/releases/download/v0.2.1/wjunhere-dsh-mcp-gateway-0.2.1.tgz` |
 | 本地目录 | `B:\path\to\dsh-mcp-gateway` |
 
 装完后按 README 禁用原来的 `@deepseek-ai/dsh-mcp-client` 行，再确认 `mcp({ action: "status" })`。

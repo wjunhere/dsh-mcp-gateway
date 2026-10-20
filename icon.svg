@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="MCP gateway: many servers collapse into one tool">
+  <defs>
+    <linearGradient id="mcpgw-plate" x1="8" y1="6" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4C8DFF"/>
+      <stop offset="1" stop-color="#0E9384"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#mcpgw-plate)"/>
+  <g fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 20.5h4"/>
+    <path d="M20 32h4"/>
+    <path d="M20 43.5h4"/>
+    <path d="M24 20.5 34 32"/>
+    <path d="M24 43.5 34 32"/>
+    <path d="M24 32h10"/>
+  </g>
+  <g fill="#fff">
+    <circle cx="17" cy="20.5" r="3.1"/>
+    <circle cx="17" cy="32" r="3.1"/>
+    <circle cx="17" cy="43.5" r="3.1"/>
+    <rect x="37.5" y="24.5" width="15" height="15" rx="5"/>
+  </g>
+</svg>

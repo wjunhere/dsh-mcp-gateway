@@ -22,6 +22,7 @@ DSH 插件：把 MCP 工具面收成一个 `mcp` 代理工具，工具元数据�
 3. 后台发现完成后调用 `manager.disconnect(name)`，避免启动时把所有服务器进程都留着。
 4. 结果文本就是模型看到的内容，保持简短；完整 schema 只在 `describe` 返回。
 5. `reload` 的顺序是：先 `loadRuntimeState()` 解析新文件（失败即抛，不动运行态）→ `closeAll()` 旧连接 → `adopt()` 换状态 → 重注册工具 → 后台发现。别把顺序改成先关连接。
+6. 插件页（「已安装插件」）那行的图标只认包根 `package.json` 的 `icon`（相对路径、留在包内、`.svg/.png/.jpg/.jpeg/.webp`、≤256 KiB），DSH 把它转成 data URL 塞进 36×36 的 `<img>`（`object-fit: contain`，外面是 48×48 圆角框）。**声明了图标却缺文件不会退回默认图，而是整行报元数据错误**，所以图标必须同时出现在 `files` 里。这两条检查已进 `verify:release`。
 
 ## 踩过的坑
 
@@ -45,10 +46,10 @@ DSH 插件：把 MCP 工具面收成一个 `mcp` 代理工具，工具元数据�
 
 `RELEASING.md` 是完整流程。要点：
 
-- `npm run verify:release` 校验 manifest、`dsh.bundle.patch`、插入行、模块语法；`prepack` 自动跑。
+- `npm run verify:release` 校验 manifest、`dsh.bundle.patch`、插入行、模块语法、`icon` 路径与是否随包发出；`prepack` 自动跑。
 - CI（`.github/workflows/ci.yml`）跑 `npm ci` → verify → unit → `npm pack --dry-run`。
 - 推 `v*` tag 触发 `.github/workflows/release.yml`：校验 tag 与版本一致、unit、pack、有 `NPM_TOKEN` 时 `npm publish`、创建 GitHub Release 附 tarball。
-- 不要改 `files`：tarball 只应包含 `lib/`、`cordis.patch.yml`、README、LICENSE。
+- 不要扩大 `files`：tarball 只应包含 `lib/`、`cordis.patch.yml`、`icon.svg`、README、LICENSE。
 
 ## 没做的部分
 
